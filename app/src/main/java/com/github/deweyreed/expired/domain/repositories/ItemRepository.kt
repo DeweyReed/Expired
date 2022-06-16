@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ItemRepository {
     fun getItemsFlow(): Flow<List<ItemEntity>>
-    suspend fun addItem(item: ItemEntity)
+    suspend fun addOrUpdateItem(item: ItemEntity)
     suspend fun deleteItem(item: ItemEntity)
 }

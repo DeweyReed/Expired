@@ -24,8 +24,8 @@ internal class ItemRepoImpl @Inject constructor(
         return dao.getFlow().map { it.fromWithMapper(itemMapper) }
     }
 
-    override suspend fun addItem(item: ItemEntity) {
-        dao.insert(item.toWithMapper(itemMapper))
+    override suspend fun addOrUpdateItem(item: ItemEntity) {
+        dao.insertOrReplace(item.toWithMapper(itemMapper))
     }
 
     override suspend fun deleteItem(item: ItemEntity) {

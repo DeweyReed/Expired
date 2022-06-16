@@ -22,7 +22,4 @@ data class ItemData(
 
     @ColumnInfo(name = "expiredTimeString")
     val expiredTimeString: String = expiredTime.toString(),
-
-    @ColumnInfo(name = "hasConsumed")
-    val hasConsumed: Boolean,
 )

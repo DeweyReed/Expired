@@ -15,9 +15,19 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     val items: Flow<List<ItemEntity>> = itemRepo.getItemsFlow()
 
-    fun addItem(item: ItemEntity) {
+    fun addOrUpdateItem(item: ItemEntity) {
         viewModelScope.launch {
-            itemRepo.addItem(item)
+            itemRepo.addOrUpdateItem(item)
+        }
+    }
+
+    fun consumeItem(item: ItemEntity) {
+        viewModelScope.launch {
+            if (item.count > 1) {
+                itemRepo.addOrUpdateItem(item.copy(count = item.count - 1))
+            } else {
+                itemRepo.deleteItem(item)
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ data class ItemEntity(
     val name: String,
     val count: Int = 1,
     val expiredTime: LocalDate,
-    val hasConsumed: Boolean = false,
 ) {
     val isExpired: Boolean get() = LocalDate.now().isAfter(expiredTime)
 

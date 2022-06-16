@@ -14,7 +14,7 @@ internal interface ItemDao {
     fun getFlow(): Flow<List<ItemData>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(item: ItemData)
+    suspend fun insertOrReplace(item: ItemData)
 
     @Delete
     suspend fun delete(item: ItemData)

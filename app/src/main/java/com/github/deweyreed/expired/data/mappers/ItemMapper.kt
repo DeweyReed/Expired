@@ -14,7 +14,6 @@ internal class ItemMapper @Inject constructor() : Mapper<ItemData, ItemEntity>()
             name = from.name,
             count = from.count,
             expiredTime = from.expiredTime,
-            hasConsumed = from.hasConsumed,
         )
     }
 
@@ -24,7 +23,6 @@ internal class ItemMapper @Inject constructor() : Mapper<ItemData, ItemEntity>()
             name = from.name,
             count = from.count,
             expiredTime = from.expiredTime,
-            hasConsumed = from.hasConsumed,
         )
     }
 }
