@@ -19,35 +19,21 @@ fun convertChineseToLocalDate(input: String): LocalDate {
     }
 
     return try {
-        val yearIndex = input.indexOf("年")
-        val yearValue = if (yearIndex == -1) {
-            Year.now().value
-        } else {
-            when (val yearValueInChinese = input.substring(0, yearIndex)) {
-                "今" -> Year.now().value
-                "明" -> Year.now().plusYears(1).value
-                "后" -> Year.now().plusYears(2).value
-                else -> buildString {
-                    yearValueInChinese.forEach {
-                        append(convertChineseCharacterToNumber(it.toString()))
-                    }
-                }.toInt()
-            }
-        }
-
         val monthIndex = input.indexOf("月")
 
         val monthValue =
-            when (val monthValueInChinese = input.substring(yearIndex + 1, monthIndex)) {
+            when (val monthValueInChinese = input.substring(0, monthIndex)) {
                 "这个" -> YearMonth.now().monthValue
                 "下个" -> YearMonth.now().plusMonths(1).monthValue
                 else -> convertChineseCharacterToNumber(monthValueInChinese)
             }
 
         val dayValueInChinese = input.substring(monthIndex + 1)
+            .removeSuffix("日")
+            .removeSuffix("号")
         val dayValue = convertChineseCharacterToNumber(dayValueInChinese)
 
-        var constructedDateTime = LocalDate.of(yearValue, monthValue, dayValue)
+        var constructedDateTime = LocalDate.of(Year.now().value, monthValue, dayValue)
         if (constructedDateTime.isBefore(LocalDate.now())) {
             constructedDateTime = constructedDateTime.plusYears(1)
         }
