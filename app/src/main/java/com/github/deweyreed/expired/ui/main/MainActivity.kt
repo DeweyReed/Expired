@@ -43,6 +43,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.EventNote
 import androidx.compose.material.icons.rounded.LocalDining
 import androidx.compose.material.icons.rounded.Mic
@@ -62,6 +63,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,6 +96,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
     val itemList by viewModel.items.collectAsState(emptyList())
 
     val showRemainingTime by viewModel.showRemainingTime.collectAsState(initial = true)
+    var showAnalytics by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
@@ -101,6 +104,13 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                 cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50))
             ) {
                 Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(onClick = { showAnalytics = !showAnalytics }) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.Analytics),
+                        contentDescription = "Toggle analytics"
+                    )
+                }
 
                 IconButton(onClick = { viewModel.changeShowRemainingTime(!showRemainingTime) }) {
                     Icon(
@@ -127,8 +137,23 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                         modifier = Modifier
                             .size(108.dp)
                             .padding(16.dp)
-                            .align(Alignment.Center),
+                            .align(Alignment.Center)
+                            .animateItemPlacement(),
                         tint = MaterialTheme.colors.primary,
+                    )
+                }
+            }
+
+            if (showAnalytics) {
+                item {
+                    Text(
+                        text = "${itemList.size} in total",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .animateItemPlacement(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.subtitle1,
                     )
                 }
             }
