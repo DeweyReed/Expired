@@ -14,15 +14,21 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.BottomAppBar
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
@@ -30,12 +36,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ListItem
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.EventNote
 import androidx.compose.material.icons.rounded.LocalDining
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Remove
@@ -51,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -84,13 +93,46 @@ class MainActivity : ComponentActivity() {
 fun Main(viewModel: MainViewModel = viewModel()) {
     val itemList by viewModel.items.collectAsState(emptyList())
 
+    val showRemainingTime by viewModel.showRemainingTime.collectAsState(initial = true)
+
     Scaffold(
+        bottomBar = {
+            BottomAppBar(
+                cutoutShape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50))
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(onClick = { viewModel.changeShowRemainingTime(!showRemainingTime) }) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.EventNote),
+                        contentDescription = "Toggle the time format"
+                    )
+                }
+            }
+        },
         floatingActionButton = { Fab(onCreateItem = viewModel::addOrUpdateItem) },
         floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = true,
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
         ) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.LocalDining),
+                        contentDescription = "Add",
+                        modifier = Modifier
+                            .size(108.dp)
+                            .padding(16.dp)
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colors.primary,
+                    )
+                }
+            }
+
             items(
                 items = itemList,
                 key = { it.id }
@@ -100,6 +142,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                     onUpdateItem = viewModel::addOrUpdateItem,
                     onConsumeItem = viewModel::consumeItem,
                     modifier = Modifier.animateItemPlacement(),
+                    showRemainingTime = showRemainingTime,
                 )
             }
         }
@@ -281,10 +324,12 @@ fun Item(
     item: ItemEntity,
     onUpdateItem: (ItemEntity) -> Unit,
     onConsumeItem: (ItemEntity) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showRemainingTime: Boolean = true,
 ) {
     val prettyTime = remember { PrettyTime() }
     var showInputDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     ListItem(
         modifier = modifier.clickable {
             showInputDialog = true
@@ -301,12 +346,21 @@ fun Item(
         },
         secondaryText = {
             Text(
-                text = prettyTime.format(
-                    Date(
-                        item.expiredTime.atStartOfDay().atZone(ZoneId.systemDefault())
-                            .toInstant().toEpochMilli()
+                text = if (showRemainingTime) {
+                    prettyTime.format(
+                        Date(
+                            item.expiredTime.atStartOfDay().atZone(ZoneId.systemDefault())
+                                .toInstant().toEpochMilli()
+                        )
                     )
-                )
+                } else {
+                    item.expiredTime.prettify(context)
+                },
+                color = if (item.expiredTime.isBefore(LocalDate.now())) {
+                    MaterialTheme.colors.error
+                } else {
+                    Color.Unspecified
+                }
             )
         },
         trailing = {
