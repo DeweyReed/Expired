@@ -151,7 +151,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
             if (showAnalytics) {
                 item {
                     Text(
-                        text = "${itemList.size} in total",
+                        text = "${itemList.sumOf { it.count }} in total",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
