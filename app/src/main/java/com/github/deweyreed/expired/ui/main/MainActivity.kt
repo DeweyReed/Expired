@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -71,6 +72,9 @@ import com.github.deweyreed.expired.domain.entities.ItemEntity
 import com.github.deweyreed.expired.domain.utils.convertChineseToLocalDate
 import com.github.deweyreed.expired.domain.utils.prettify
 import com.github.deweyreed.expired.ui.theme.ExpiredTheme
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import org.ocpsoft.prettytime.PrettyTime
@@ -208,7 +212,9 @@ fun CreateItemDialog(
     val nameLauncher = rememberVoiceInputLauncher { name = it }
 
     var time by remember(oldItem) { mutableStateOf(oldItem.expiredTime) }
-    val timeLauncher = rememberVoiceInputLauncher { time = convertChineseToLocalDate(it) }
+    val timeLauncher = rememberVoiceInputLauncher {
+        time = convertChineseToLocalDate(it) ?: LocalDate.now().plusDays(1)
+    }
 
     var count by remember(oldItem) { mutableStateOf(oldItem.count) }
 
@@ -229,11 +235,6 @@ fun CreateItemDialog(
                 enabled = name.isNotBlank() && count > 0 && time.isAfter(LocalDate.now())
             ) {
                 Text(text = "Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(text = "Cancel")
             }
         },
         title = {
@@ -264,9 +265,18 @@ fun CreateItemDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                val dialogState = rememberMaterialDialogState()
+
                 OutlinedTextField(
                     value = time.prettify(LocalContext.current),
                     onValueChange = { },
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) {
+                        dialogState.show()
+                    },
+                    enabled = false,
                     label = { Text(text = "Expired Time") },
                     trailingIcon = {
                         Icon(
@@ -276,6 +286,22 @@ fun CreateItemDialog(
                         )
                     }
                 )
+
+                MaterialDialog(
+                    dialogState = dialogState,
+                    buttons = {
+                        positiveButton("OK")
+                        negativeButton("Cancel")
+                    }
+                ) {
+                    datepicker(
+                        initialDate = time,
+                        yearRange = time.year..(time.year + 30),
+                        allowedDateValidator = { !it.isBefore(LocalDate.now()) },
+                    ) { date ->
+                        time = date
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

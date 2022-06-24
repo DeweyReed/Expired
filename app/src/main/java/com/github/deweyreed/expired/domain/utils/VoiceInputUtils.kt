@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 
-fun convertChineseToLocalDate(input: String): LocalDate {
+fun convertChineseToLocalDate(input: String): LocalDate? {
     if (input == "今天") {
         return LocalDate.now()
     }
@@ -41,7 +41,7 @@ fun convertChineseToLocalDate(input: String): LocalDate {
         constructedDateTime
     } catch (e: Exception) {
         e.printStackTrace()
-        LocalDate.now()
+        null
     }
 }
 

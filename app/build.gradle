@@ -93,4 +93,5 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     implementation 'org.ocpsoft.prettytime:prettytime:4.0.4.Final'
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:0.7.2"
 }
