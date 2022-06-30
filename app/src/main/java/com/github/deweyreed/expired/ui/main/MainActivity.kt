@@ -2,6 +2,7 @@
 
 package com.github.deweyreed.expired.ui.main
 
+import android.animation.ArgbEvaluator
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -36,6 +37,7 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ListItem
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
@@ -62,6 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -80,6 +83,7 @@ import kotlinx.coroutines.delay
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
 
@@ -390,6 +394,33 @@ fun Item(
 ) {
     val prettyTime = remember { PrettyTime() }
     var showInputDialog by remember { mutableStateOf(false) }
+
+    val plainColor = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    val seriousColor = MaterialTheme.colors.error
+    val textColor = remember(item.expiredTime) {
+        val expire = item.expiredTime
+        val today = LocalDate.now()
+        val target = today.plusMonths(1)
+
+        val argbEvaluator = ArgbEvaluator()
+
+        when {
+            expire.isBefore(today) -> seriousColor
+            expire == target || expire.isAfter(target) -> plainColor
+            else -> {
+                Color(
+                    argbEvaluator.evaluate(
+                        ((ChronoUnit.DAYS.between(today, expire).toFloat()) /
+                            (ChronoUnit.DAYS.between(today, target).toFloat()))
+                            .coerceIn(0f, 1f),
+                        seriousColor.toArgb(),
+                        plainColor.toArgb()
+                    ) as Int
+                )
+            }
+        }
+    }
+
     val context = LocalContext.current
     ListItem(
         modifier = modifier.clickable {
@@ -402,7 +433,8 @@ fun Item(
                     if (item.count > 1) {
                         append(" x ${item.count}")
                     }
-                }
+                },
+                color = textColor,
             )
         },
         secondaryText = {
@@ -417,11 +449,7 @@ fun Item(
                 } else {
                     item.expiredTime.prettify(context)
                 },
-                color = if (item.expiredTime.isBefore(LocalDate.now())) {
-                    MaterialTheme.colors.error
-                } else {
-                    Color.Unspecified
-                }
+                color = textColor,
             )
         },
         trailing = {
