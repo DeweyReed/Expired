@@ -127,9 +127,10 @@ fun Main(viewModel: MainViewModel = viewModel()) {
         floatingActionButton = { Fab(onCreateItem = viewModel::addOrUpdateItem) },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
-    ) {
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
+            contentPadding = paddingValues,
         ) {
             item {
                 Box(
