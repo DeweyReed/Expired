@@ -194,6 +194,7 @@ fun Fab(onCreateItem: (ItemEntity) -> Unit) {
     if (showInputDialog) {
         CreateItemDialog(
             onDismissRequest = { showInputDialog = false },
+            continuousAdd = true,
             onCreateItem = onCreateItem,
         )
     }
@@ -205,6 +206,7 @@ fun CreateItemDialog(
         name = "",
         expiredTime = LocalDate.now().plusDays(1)
     ),
+    continuousAdd: Boolean = false,
     onDismissRequest: () -> Unit,
     onCreateItem: (ItemEntity) -> Unit,
 ) {
@@ -230,7 +232,14 @@ fun CreateItemDialog(
                             expiredTime = time
                         )
                     )
-                    onDismissRequest()
+
+                    if (continuousAdd) {
+                        name = ""
+                        count = 1
+                        time = LocalDate.now().plusDays(1)
+                    } else {
+                        onDismissRequest()
+                    }
                 },
                 enabled = name.isNotBlank() && count > 0 && time.isAfter(LocalDate.now())
             ) {
