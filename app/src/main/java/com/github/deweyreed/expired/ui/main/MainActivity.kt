@@ -167,6 +167,20 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                 }
             }
 
+            if (!showRemainingTime) {
+                item {
+                    ListItem(
+                        modifier = Modifier.animateItemPlacement(),
+                        text = {
+                            Text(text = "Today")
+                        },
+                        secondaryText = {
+                            Text(text = LocalDate.now().prettify(LocalContext.current))
+                        }
+                    )
+                }
+            }
+
             items(
                 items = itemList,
                 key = { it.id }
