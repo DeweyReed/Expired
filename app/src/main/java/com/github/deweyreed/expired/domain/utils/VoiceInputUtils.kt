@@ -1,34 +1,43 @@
 package com.github.deweyreed.expired.domain.utils
 
+import androidx.core.text.isDigitsOnly
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
 
+fun String.cleanVoiceInput(): String {
+    return removeSuffix(".")
+        .removeSuffix("。")
+        .trim()
+}
+
 fun convertChineseToLocalDate(input: String): LocalDate? {
-    if (input == "今天") {
+    val cleanInput = input.cleanVoiceInput()
+
+    if (cleanInput == "今天") {
         return LocalDate.now()
     }
-    if (input == "明天") {
+    if (cleanInput == "明天") {
         return LocalDate.now().plusDays(1)
     }
-    if (input == "后天") {
+    if (cleanInput == "后天") {
         return LocalDate.now().plusDays(2)
     }
-    if (input == "大后天") {
+    if (cleanInput == "大后天") {
         return LocalDate.now().plusDays(3)
     }
 
     return try {
-        val monthIndex = input.indexOf("月")
+        val monthIndex = cleanInput.indexOf("月")
 
         val monthValue =
-            when (val monthValueInChinese = input.substring(0, monthIndex)) {
+            when (val monthValueInChinese = cleanInput.substring(0, monthIndex)) {
                 "这个" -> YearMonth.now().monthValue
                 "下个" -> YearMonth.now().plusMonths(1).monthValue
                 else -> convertChineseCharacterToNumber(monthValueInChinese)
             }
 
-        val dayValueInChinese = input.substring(monthIndex + 1)
+        val dayValueInChinese = cleanInput.substring(monthIndex + 1)
             .removeSuffix("日")
             .removeSuffix("号")
         val dayValue = convertChineseCharacterToNumber(dayValueInChinese)
@@ -46,6 +55,8 @@ fun convertChineseToLocalDate(input: String): LocalDate? {
 }
 
 private fun convertChineseCharacterToNumber(character: String): Int {
+    if (character.isDigitsOnly()) return character.toInt()
+
     return when (character) {
         "零" -> 0
         "一" -> 1

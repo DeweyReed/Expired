@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.deweyreed.expired.domain.entities.ItemEntity
+import com.github.deweyreed.expired.domain.utils.cleanVoiceInput
 import com.github.deweyreed.expired.domain.utils.convertChineseToLocalDate
 import com.github.deweyreed.expired.domain.utils.prettify
 import com.github.deweyreed.expired.ui.theme.ExpiredTheme
@@ -232,11 +233,13 @@ fun CreateItemDialog(
     onCreateItem: (ItemEntity) -> Unit,
 ) {
     var name by remember(oldItem) { mutableStateOf(oldItem.name) }
-    val nameLauncher = rememberVoiceInputLauncher { name = it }
+    val nameLauncher = rememberVoiceInputLauncher {
+        name = it.cleanVoiceInput()
+    }
 
     var time by remember(oldItem) { mutableStateOf(oldItem.expiredTime) }
     val timeLauncher = rememberVoiceInputLauncher {
-        time = convertChineseToLocalDate(it) ?: LocalDate.now().plusDays(1)
+        time = convertChineseToLocalDate(it.cleanVoiceInput()) ?: LocalDate.now().plusDays(1)
     }
 
     var count by remember(oldItem) { mutableStateOf(oldItem.count) }
