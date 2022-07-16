@@ -4,9 +4,11 @@ package com.github.deweyreed.expired.ui.main
 
 import android.animation.ArgbEvaluator
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -279,10 +281,13 @@ fun CreateItemDialog(
                     modifier = Modifier.focusRequester(focusRequester),
                     label = { Text(text = "Name") },
                     trailingIcon = {
+                        val context = LocalContext.current
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Mic),
                             contentDescription = "Voice input",
-                            modifier = Modifier.clickable { nameLauncher.requestVoiceInput() }
+                            modifier = Modifier.clickable {
+                                requestVoiceInput(context, nameLauncher)
+                            }
                         )
                     }
                 )
@@ -307,10 +312,13 @@ fun CreateItemDialog(
                     enabled = false,
                     label = { Text(text = "Expired Time") },
                     trailingIcon = {
+                        val context = LocalContext.current
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Mic),
                             contentDescription = "Voice input",
-                            modifier = Modifier.clickable { timeLauncher.requestVoiceInput() }
+                            modifier = Modifier.clickable {
+                                requestVoiceInput(context, timeLauncher)
+                            }
                         )
                     }
                 )
@@ -387,7 +395,10 @@ private fun rememberVoiceInputLauncher(
     )
 }
 
-private fun ManagedActivityResultLauncher<Intent, ActivityResult>.requestVoiceInput() {
+private fun requestVoiceInput(
+    context: Context,
+    launcher: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
     val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
     intent.putExtra(
         RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -395,7 +406,12 @@ private fun ManagedActivityResultLauncher<Intent, ActivityResult>.requestVoiceIn
     )
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
     intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hi speak something")
-    launch(intent)
+    try {
+        launcher.launch(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Toast.makeText(context, e.message.toString(), Toast.LENGTH_LONG).show()
+    }
 }
 
 @Composable
