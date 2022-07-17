@@ -410,7 +410,7 @@ private fun requestVoiceInput(
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
     intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hi speak something")
     try {
-        launcher.launch(intent)
+        launcher.launch(Intent.createChooser(intent, "Choose"))
     } catch (e: Exception) {
         e.printStackTrace()
         Toast.makeText(context, e.message.toString(), Toast.LENGTH_LONG).show()
