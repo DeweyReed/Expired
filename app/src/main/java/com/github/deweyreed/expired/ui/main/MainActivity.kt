@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.BottomAppBar
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
@@ -104,9 +105,41 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Main(viewModel: MainViewModel = viewModel()) {
-    val itemList by viewModel.items.collectAsState(emptyList())
+    when (val state = viewModel.itemState.collectAsState(MainViewModel.ItemState.Loading).value) {
+        MainViewModel.ItemState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        }
+        MainViewModel.ItemState.Empty -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Fab(
+                    onCreateItem = viewModel::addOrUpdateItem,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+        is MainViewModel.ItemState.Data -> {
+            ItemList(
+                itemList = state.items,
+                showRemainingTime = viewModel.showRemainingTime.collectAsState(true).value,
+                changeShowRemainingTime = viewModel::changeShowRemainingTime,
+                addOrUpdateItem = viewModel::addOrUpdateItem,
+                consumeItem = viewModel::consumeItem,
+            )
+        }
+    }
+}
 
-    val showRemainingTime by viewModel.showRemainingTime.collectAsState(initial = true)
+@Composable
+fun ItemList(
+    itemList: List<ItemEntity>,
+    showRemainingTime: Boolean,
+    changeShowRemainingTime: (Boolean) -> Unit,
+
+    addOrUpdateItem: (ItemEntity) -> Unit,
+    consumeItem: (ItemEntity) -> Unit,
+) {
     var showAnalytics by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -123,7 +156,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                     )
                 }
 
-                IconButton(onClick = { viewModel.changeShowRemainingTime(!showRemainingTime) }) {
+                IconButton(onClick = { changeShowRemainingTime(!showRemainingTime) }) {
                     Icon(
                         painter = rememberVectorPainter(image = Icons.Rounded.EventNote),
                         contentDescription = "Toggle the time format"
@@ -131,7 +164,7 @@ fun Main(viewModel: MainViewModel = viewModel()) {
                 }
             }
         },
-        floatingActionButton = { Fab(onCreateItem = viewModel::addOrUpdateItem) },
+        floatingActionButton = { Fab(onCreateItem = addOrUpdateItem) },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
     ) { paddingValues ->
@@ -190,8 +223,8 @@ fun Main(viewModel: MainViewModel = viewModel()) {
             ) {
                 Item(
                     item = it,
-                    onUpdateItem = viewModel::addOrUpdateItem,
-                    onConsumeItem = viewModel::consumeItem,
+                    onUpdateItem = addOrUpdateItem,
+                    onConsumeItem = consumeItem,
                     modifier = Modifier.animateItemPlacement(),
                     showRemainingTime = showRemainingTime,
                 )
@@ -201,11 +234,15 @@ fun Main(viewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-fun Fab(onCreateItem: (ItemEntity) -> Unit) {
+fun Fab(
+    onCreateItem: (ItemEntity) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var showInputDialog by remember { mutableStateOf(false) }
 
     FloatingActionButton(
         onClick = { showInputDialog = true },
+        modifier = modifier,
     ) {
         Icon(
             painter = rememberVectorPainter(image = Icons.Rounded.ShoppingCart),

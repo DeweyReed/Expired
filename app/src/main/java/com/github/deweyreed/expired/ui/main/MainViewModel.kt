@@ -7,6 +7,7 @@ import com.github.deweyreed.expired.domain.repositories.ItemRepository
 import com.github.deweyreed.expired.domain.repositories.PreferenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,7 +16,21 @@ class MainViewModel @Inject constructor(
     private val itemRepo: ItemRepository,
     private val preferenceRepo: PreferenceRepository,
 ) : ViewModel() {
-    val items: Flow<List<ItemEntity>> = itemRepo.getItemsFlow()
+
+    sealed interface ItemState {
+        object Loading : ItemState
+        object Empty : ItemState
+        data class Data(val items: List<ItemEntity>) : ItemState
+    }
+
+    val itemState: Flow<ItemState> = itemRepo.getItemsFlow().map { items ->
+        if (items.isEmpty()) {
+            ItemState.Empty
+        } else {
+            ItemState.Data(items)
+        }
+    }
+
     val showRemainingTime: Flow<Boolean> =
         preferenceRepo.getBooleanFlow(PREF_KEY_SHOW_REMAINING_TIME, default = true)
 
