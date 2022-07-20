@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Expired</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="update">Update</string>
+    <string name="consume">Consume</string>
+    <string name="analytics">Analytics</string>
+    <string name="time_format">Time format</string>
+    <string name="in_total_template">%s in total</string>
+    <string name="today">Today</string>
+    <string name="name">Name</string>
+    <string name="voice_input">Voice input</string>
+    <string name="expired_time">Expired time</string>
+    <string name="unknown">Unknown</string>
 </resources>

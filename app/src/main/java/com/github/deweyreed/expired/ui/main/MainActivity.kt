@@ -70,10 +70,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.deweyreed.expired.R
 import com.github.deweyreed.expired.domain.entities.ItemEntity
 import com.github.deweyreed.expired.domain.utils.cleanVoiceInput
 import com.github.deweyreed.expired.domain.utils.convertChineseToLocalDate
@@ -152,14 +154,14 @@ fun ItemList(
                 IconButton(onClick = { showAnalytics = !showAnalytics }) {
                     Icon(
                         painter = rememberVectorPainter(image = Icons.Rounded.Analytics),
-                        contentDescription = "Toggle analytics"
+                        contentDescription = stringResource(R.string.analytics)
                     )
                 }
 
                 IconButton(onClick = { changeShowRemainingTime(!showRemainingTime) }) {
                     Icon(
                         painter = rememberVectorPainter(image = Icons.Rounded.EventNote),
-                        contentDescription = "Toggle the time format"
+                        contentDescription = stringResource(R.string.time_format)
                     )
                 }
             }
@@ -178,7 +180,7 @@ fun ItemList(
                 ) {
                     Icon(
                         painter = rememberVectorPainter(image = Icons.Rounded.LocalDining),
-                        contentDescription = "Add",
+                        contentDescription = stringResource(R.string.add),
                         modifier = Modifier
                             .size(108.dp)
                             .padding(16.dp)
@@ -192,7 +194,10 @@ fun ItemList(
             if (showAnalytics) {
                 item {
                     Text(
-                        text = "${itemList.sumOf { it.count }} in total",
+                        text = stringResource(
+                            R.string.in_total_template,
+                            itemList.sumOf { it.count }
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -208,7 +213,7 @@ fun ItemList(
                     ListItem(
                         modifier = Modifier.animateItemPlacement(),
                         text = {
-                            Text(text = "Today")
+                            Text(text = stringResource(R.string.today))
                         },
                         secondaryText = {
                             Text(text = LocalDate.now().prettify(LocalContext.current))
@@ -246,7 +251,7 @@ fun Fab(
     ) {
         Icon(
             painter = rememberVectorPainter(image = Icons.Rounded.ShoppingCart),
-            contentDescription = "Add",
+            contentDescription = stringResource(R.string.add),
         )
     }
 
@@ -304,11 +309,11 @@ fun CreateItemDialog(
                 },
                 enabled = name.isNotBlank() && count > 0 && time.isAfter(LocalDate.now())
             ) {
-                Text(text = "Add")
+                Text(text = stringResource(R.string.add))
             }
         },
         title = {
-            Text(text = "Add an item")
+            Text(text = stringResource(R.string.add))
         },
         text = {
             Column {
@@ -319,12 +324,12 @@ fun CreateItemDialog(
                     value = name,
                     onValueChange = { name = it },
                     modifier = Modifier.focusRequester(focusRequester),
-                    label = { Text(text = "Name") },
+                    label = { Text(text = stringResource(R.string.name)) },
                     trailingIcon = {
                         val context = LocalContext.current
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Mic),
-                            contentDescription = "Voice input",
+                            contentDescription = stringResource(R.string.voice_input),
                             modifier = Modifier.clickable {
                                 requestVoiceInput(context, nameLauncher)
                             }
@@ -350,12 +355,12 @@ fun CreateItemDialog(
                         dialogState.show()
                     },
                     enabled = false,
-                    label = { Text(text = "Expired Time") },
+                    label = { Text(text = stringResource(R.string.expired_time)) },
                     trailingIcon = {
                         val context = LocalContext.current
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Mic),
-                            contentDescription = "Voice input",
+                            contentDescription = stringResource(R.string.voice_input),
                             modifier = Modifier.clickable {
                                 requestVoiceInput(context, timeLauncher)
                             }
@@ -366,8 +371,8 @@ fun CreateItemDialog(
                 MaterialDialog(
                     dialogState = dialogState,
                     buttons = {
-                        positiveButton("OK")
-                        negativeButton("Cancel")
+                        positiveButton(stringResource(R.string.ok))
+                        negativeButton(stringResource(R.string.cancel))
                     }
                 ) {
                     datepicker(
@@ -391,7 +396,7 @@ fun CreateItemDialog(
                     ) {
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Remove),
-                            contentDescription = "Remove"
+                            contentDescription = stringResource(R.string.remove)
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -401,9 +406,9 @@ fun CreateItemDialog(
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Add),
                             contentDescription = if (oldItem.id == ItemEntity.ID_NEW) {
-                                "Add"
+                                stringResource(R.string.add)
                             } else {
-                                "Update"
+                                stringResource(R.string.update)
                             }
                         )
                     }
@@ -420,15 +425,16 @@ fun CreateItemDialog(
 private fun rememberVoiceInputLauncher(
     onResult: (String) -> Unit
 ): ManagedActivityResultLauncher<Intent, ActivityResult> {
+    val unknown = stringResource(R.string.unknown)
     return rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { activityResult ->
             onResult(
                 if (activityResult.resultCode == Activity.RESULT_OK) {
                     activityResult.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                        ?.joinToString() ?: "Unknown"
+                        ?.joinToString() ?: unknown
                 } else {
-                    "Unknown"
+                    unknown
                 }
             )
         }
@@ -445,9 +451,8 @@ private fun requestVoiceInput(
         RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
     )
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Hi speak something")
     try {
-        launcher.launch(Intent.createChooser(intent, "Choose"))
+        launcher.launch(Intent.createChooser(intent, null))
     } catch (e: Exception) {
         e.printStackTrace()
         Toast.makeText(context, e.message.toString(), Toast.LENGTH_LONG).show()
@@ -526,7 +531,7 @@ fun Item(
             IconButton(onClick = { onConsumeItem(item) }) {
                 Icon(
                     painter = rememberVectorPainter(image = Icons.Rounded.LocalDining),
-                    contentDescription = "Consume",
+                    contentDescription = stringResource(R.string.consume),
                     tint = LocalContentColor.current.copy(alpha = 0.6f)
                 )
             }

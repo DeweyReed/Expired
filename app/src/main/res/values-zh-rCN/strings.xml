@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">过期啦</string>
+
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="add">添加</string>
+    <string name="remove">删除</string>
+    <string name="update">更新</string>
+    <string name="consume">吃掉</string>
+    <string name="analytics">统计</string>
+    <string name="time_format">时间格式</string>
+    <string name="in_total_template">共 %s 个</string>
+    <string name="today">今天</string>
+    <string name="name">名称</string>
+    <string name="voice_input">语音输入</string>
+    <string name="expired_time">过期时间</string>
+    <string name="unknown">没听懂呀~</string>
+</resources>
