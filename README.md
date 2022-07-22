@@ -2,6 +2,10 @@
 
 一款管理过期商品的Android应用。
 
+|列表|添加|
+|:-:|:-:|
+|<img src="images/1.webp" height="500" alt="List">|<img src="images/2.webp" height="500" alt="Add">|
+
 ## 语音输入
 
 应用会调用系统语音识别的接口，暂时只支持简体中文输入。
