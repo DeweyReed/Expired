@@ -1,12 +1,24 @@
-# 过期啦
+<div align="center">
+  <img src="images/icon.webp" height="128" />
+</div>
 
-一款管理过期商品的Android应用。
+<h1 align="center">过期啦</h1>
 
-支持商品的增删查改，并用渐变红色标记快过期的商品。
+<div align="center">
+  <strong>一款管理过期商品的Android应用。</strong>
+  <br>
+  支持商品的增删查改，并用渐变红色标记快过期的商品。
+</div>
+
+<br>
+
+<div align="center">
 
 |列表|添加|
 |:-:|:-:|
 |<img src="images/1.webp" height="500" alt="List">|<img src="images/2.webp" height="500" alt="Add">|
+
+</div>
 
 [Release中有下载链接。](https://github.com/DeweyReed/Expired/releases)
 
